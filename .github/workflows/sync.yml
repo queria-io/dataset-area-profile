@@ -1,0 +1,22 @@
+name: Sync
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "*.md"
+  schedule:
+    # 毎月 4 日 05:00 JST。area_stats (毎月 3 日) の後に、元のデータセットの更新を取り込む
+    - cron: "0 20 3 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    uses: queria-io/dataset-shared/.github/workflows/sync.yml@main
+    with:
+      dataset_name: area_profile
+    secrets: inherit
