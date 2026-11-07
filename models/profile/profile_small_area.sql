@@ -44,14 +44,14 @@ place as (
     select
         p.longitude,
         p.latitude,
-        coalesce(t.industry_code, d.industry_code) as industry_code
+        if(t.basic_category is null, d.industry_code, t.industry_code) as industry_code
     from overturemaps.places.place p
     left join overturemaps.places.category t
         on t.basic_category = p.basic_category and t.taxonomy_primary = p.taxonomy_primary
     left join overturemaps.places.category d
         on d.basic_category = p.basic_category and d.taxonomy_primary is null
     where p.exclude_reason is null
-      and coalesce(t.is_unattended, d.is_unattended) is not true
+      and if(t.basic_category is null, d.is_unattended, t.is_unattended) is not true
 ),
 
 -- 位置で町丁目に入れる
