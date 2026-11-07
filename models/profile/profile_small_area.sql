@@ -75,7 +75,9 @@ facility as (
 ),
 
 -- 駅。乗降客数は路線ごとの駅に入っていて、乗り換え駅は束ねたコード (station_group_code) でまとめる。
--- 他の路線の駅に記載された行 (duplicate_code = 2) は二重に数えないよう除く
+-- 他の路線の駅に記載された行 (duplicate_code = 2) は二重に数えないよう除く。
+-- 駅なし (duplicate_code = 3、廃止された駅) は駅として扱わない。この行には station_group_code の無いものがあり、
+-- まとめると全国の座標を平均した架空の駅ができる
 station_year as (
     select max(year) as year
     from nlftp.railway.station_passenger
@@ -91,21 +93,28 @@ station as materialized (
         sum(sp.passenger_count) filter (where sp.duplicate_code = '1') as passenger_count
     from nlftp.railway.station_passenger sp
     join station_year y using (year)
+    where sp.duplicate_code <> '3'
+      and sp.station_group_code is not null
     group by sp.station_group_code
 ),
 
--- 町丁目の代表点から一番近い駅。経緯度で 0.1 度 (約 10 km) の箱に入る駅だけと比べる
+-- 町丁目の代表点から直線距離 10 km 以内で一番近い駅。先に経緯度の箱で候補を絞る。
+-- 箱は緯度 ±0.1 度 (約 11 km)・経度 ±0.15 度 (北緯 45.5 度でも約 11.7 km) で、10 km の円を含む
 nearest_station as (
-    select
-        s.key_code,
-        st.station_name,
-        st.passenger_count,
-        st_distance_sphere(st_point(s.latitude, s.longitude), st_point(st.latitude, st.longitude)) as distance_m
-    from small_area s
-    join station st
-        on st.longitude between s.longitude - 0.1 and s.longitude + 0.1
-       and st.latitude between s.latitude - 0.1 and s.latitude + 0.1
-    qualify row_number() over (partition by s.key_code order by distance_m) = 1
+    select key_code, station_name, passenger_count, distance_m
+    from (
+        select
+            s.key_code,
+            st.station_name,
+            st.passenger_count,
+            st_distance_sphere(st_point(s.latitude, s.longitude), st_point(st.latitude, st.longitude)) as distance_m
+        from small_area s
+        join station st
+            on st.longitude between s.longitude - 0.15 and s.longitude + 0.15
+           and st.latitude between s.latitude - 0.1 and s.latitude + 0.1
+    )
+    where distance_m <= 10000
+    qualify row_number() over (partition by key_code order by distance_m, station_name) = 1
 ),
 
 -- 地価は町丁目ごとに、値のある最新の年。地点の無くなった町に古い値が残らないよう、直近 3 年に限る
