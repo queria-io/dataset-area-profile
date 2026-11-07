@@ -1,12 +1,12 @@
 # この dataset.yml は fdl commit が読む（FDL の dataset.json を YAML で書いたもの）。
 # 表の説明は models/ の *.table.yml に書く。表と列の型・NULL・行数は fdl commit がカタログから埋める。
-# Queria だけの項目（テーマ・カバー・列の意味）は extensions.queria に書く。
+# Queria だけの項目（テーマ・カバー・列の意味）は annotations.queria に書く。
 name: area_profile
 title: 地域カルテ
 description: |-
   町丁目ごとのよく使う指標（人口・年齢構成・店舗数・最寄り駅・地価）を、1 行に並べたデータセットです。町丁目どうしを比べたり、地図で塗ったりするときに 1 つの表で引けます。
 
-  出典：「国勢調査」（総務省統計局、令和2年）、「国土数値情報 駅別乗降客数データ」（国土交通省）、Overture Maps Foundation の Places、「不動産情報ライブラリ」（国土交通省）。Queria が加工したものです。
+  出典：「国勢調査」（総務省統計局、令和2年）、「国土数値情報 駅別乗降客数データ」（国土交通省）、Overture Maps Foundation の Places、「不動産情報ライブラリ」（国土交通省）、「アドレス・ベース・レジストリ」（デジタル庁）。Queria が加工したものです。
 keywords:
   - 地域
   - 町丁目
@@ -24,6 +24,7 @@ licenses:
   - CDLA-Permissive-2.0
   - Apache-2.0
   - CC0-1.0
+  - JP-DIGITAL-ADDRESS-BR
 
 sources:
   - title: 国勢調査 小地域集計・町丁・字等別境界データ（総務省統計局）
@@ -34,6 +35,8 @@ sources:
     path: https://overturemaps.org/
   - title: 不動産情報ライブラリ（国土交通省）
     path: https://www.reinfolib.mlit.go.jp/
+  - title: アドレス・ベース・レジストリ（デジタル庁）
+    path: https://dataset.address-br.digital.go.jp/
 
 contributors:
   - title: 総務省統計局
@@ -45,6 +48,9 @@ contributors:
   - title: Overture Maps Foundation
     path: https://overturemaps.org/
     roles: [rightsHolder]
+  - title: デジタル庁
+    path: https://www.digital.go.jp/
+    roles: [rightsHolder]
 
 spatial_coverage: [JP]
 update_frequency: monthly
@@ -53,7 +59,7 @@ schemas:
   - name: profile
     title: 地域カルテ
 
-extensions:
+annotations:
   queria:
     themes: [population]
     cover: 🗂️
@@ -64,7 +70,7 @@ extensions:
         店舗の種類別件数・最寄り駅と乗降客数・最新の地価が列に並ぶ。key_code は e_stat の boundary.small_area
         と国勢調査の小地域集計の area と同じなので、細かい区分（5 歳階級など）が要るときはそちらと結合する。
         人口と年齢は令和2年国勢調査、店舗は取り込んだ Overture のリリース時点、乗降客数は station_passenger_year
-        の年、地価は land_price_year の年の値で、時点がそろっていない。店舗の件数は Overture の登録の数で、
+        の年、地価は residential_price_year・commercial_price_year の年の値で、時点がそろっていない。店舗の件数は Overture の登録の数で、
         実際の店舗数より少ない地域がある。地価の値は area_stats.land_price.small_area と同じ（町ごとの中央値）。
       synonyms: [地域カルテ, 町丁目カルテ, エリアプロファイル, 町丁目 指標, 地域の概要]
       examples:

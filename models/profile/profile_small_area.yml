@@ -29,6 +29,7 @@ models:
       - name: nearest_station_distance_m
       - name: nearest_station_passenger_count
       - name: station_passenger_year
-      - name: land_price_year
+      - name: residential_price_year
       - name: residential_price_median
+      - name: commercial_price_year
       - name: commercial_price_median

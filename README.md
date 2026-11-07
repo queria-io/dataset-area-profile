@@ -13,7 +13,7 @@ Queria の公開データセット e_stat・nlftp・overturemaps・area_stats �
 | [国勢調査](https://www.e-stat.go.jp/gis)（総務省統計局、令和2年） | `e_stat.boundary.small_area`、`e_stat.census.census_small_area_age` |
 | [国土数値情報 駅別乗降客数データ](https://nlftp.mlit.go.jp/ksj/)（国土交通省） | `nlftp.railway.station_passenger` |
 | [Overture Maps Foundation Places](https://overturemaps.org/) | `overturemaps.places.place`、`overturemaps.places.category` |
-| [不動産情報ライブラリ](https://www.reinfolib.mlit.go.jp/)（国土交通省） | `area_stats.land_price.small_area` |
+| [不動産情報ライブラリ](https://www.reinfolib.mlit.go.jp/)（国土交通省）、[アドレス・ベース・レジストリ](https://dataset.address-br.digital.go.jp/)（デジタル庁） | `area_stats.land_price.small_area` |
 
 - 元データの利用規約に従います
 - 店舗の数は Overture Places（CDLA-Permissive-2.0 ほか）から数えています
@@ -42,8 +42,8 @@ ORDER BY population DESC;
 - 1 行は `e_stat.boundary.small_area` の 1 行（9 桁の町丁・字等か、11 桁の内訳）です。`key_code` で国勢調査の小地域集計と結合できます
 - 年齢 4 区分は国勢調査の小地域集計の値です。秘匿の町丁目は NULL で、人数は合算先の町丁目に含まれます。高齢化率の分母は年齢不詳を除いた 3 区分の合計です
 - 店舗・施設は Overture Places の位置で町丁目に入れます。閉店・重複・確からしさの低いもの（`exclude_reason` のある行）と、ATM など人のいない設備は数えません。種類は日本標準産業分類の中分類でまとめます。Overture に登録の無い店は数えられないので、実際の店舗数より少ない地域があります
-- 最寄り駅は町丁目の代表点から直線距離で一番近い駅です。10 km 以内に駅が無い町丁目は NULL です。廃止された駅は含めません。乗降客数は最新の年の値で、乗り換え駅は路線をまとめた値です
-- 地価は `area_stats.land_price.small_area` の、値のある最新の年（直近 3 年まで）の値です
+- 最寄り駅は町丁目の代表点から直線距離で一番近い駅です。10 km 以内に駅が無い町丁目は NULL です。廃止された駅は含めません。乗降客数は路線ごとに値のある最新の年（直近 3 年まで）の値で、乗り換え駅は路線をまとめた値です
+- 地価は `area_stats.land_price.small_area` の、住宅地・商業地それぞれ値のある最新の年（直近 3 年まで）の値です
 - 時点が列ごとに違います（人口は 2020 年、店舗は取り込み時点、乗降客数と地価はそれぞれの年の列のとおり）
 
 ## ビルド

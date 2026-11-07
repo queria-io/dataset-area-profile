@@ -39,7 +39,9 @@ age as (
 ),
 
 -- 店舗・施設。数えるときに除く行 (閉店・重複・確からしさが低い) と、人のいない設備は数えない。
--- 種類は日本標準産業分類の中分類でまとめる (queria.io のエリア分析と同じ分け方)
+-- 種類は日本標準産業分類の中分類でまとめる (queria.io のエリア分析と同じ分け方)。
+-- 詳細分類 (taxonomy_primary) の行があればその行を、無ければ既定の行を採る。詳細分類の行の
+-- 空の値 (産業分類の無い package_locker など) を既定の行の値で埋めない
 place as (
     select
         p.longitude,
@@ -75,60 +77,86 @@ facility as (
 ),
 
 -- 駅。乗降客数は路線ごとの駅に入っていて、乗り換え駅は束ねたコード (station_group_code) でまとめる。
--- 他の路線の駅に記載された行 (duplicate_code = 2) は二重に数えないよう除く。
--- 駅なし (duplicate_code = 3、廃止された駅) は駅として扱わない。この行には station_group_code の無いものがあり、
--- まとめると全国の座標を平均した架空の駅ができる
+-- 駅の位置と名前は最新の年の行から取る。駅なし (duplicate_code = 3、廃止された駅) は駅として扱わない。
+-- この行には station_group_code の無いものがあり、まとめると全国の座標を平均した架空の駅ができる
 station_year as (
     select max(year) as year
     from nlftp.railway.station_passenger
     where passenger_count is not null
 ),
 
-station as materialized (
-    select
-        sp.station_group_code,
-        min(sp.station_name) as station_name,
-        avg(st_x(st_centroid(sp.geometry))) as longitude,
-        avg(st_y(st_centroid(sp.geometry))) as latitude,
-        sum(sp.passenger_count) filter (where sp.duplicate_code = '1') as passenger_count
+station_row as (
+    select sp.*
     from nlftp.railway.station_passenger sp
     join station_year y using (year)
     where sp.duplicate_code <> '3'
       and sp.station_group_code is not null
-    group by sp.station_group_code
+),
+
+-- 乗降客数は路線の駅ごとに、値のある最新の年 (直近 3 年まで)。最新の年に記載の無い事業者があり、
+-- 最新の年だけで足すと乗り換え駅の値が欠けたり駅ごと NULL になったりする。
+-- 他の路線の駅に記載された行 (duplicate_code = 2) は二重に数えないよう除く
+station_count as (
+    select sp.station_group_code, sp.year, sp.passenger_count
+    from nlftp.railway.station_passenger sp
+    where sp.passenger_count is not null
+      and sp.duplicate_code = '1'
+      and sp.year >= (select year - 2 from station_year)
+      and sp.station_code in (select station_code from station_row)
+    qualify row_number() over (partition by sp.station_code order by sp.year desc) = 1
+),
+
+station_group_count as (
+    select station_group_code, sum(passenger_count) as passenger_count, max(year) as passenger_year
+    from station_count
+    group by station_group_code
+),
+
+station as materialized (
+    select
+        sr.station_group_code,
+        min(sr.station_name) as station_name,
+        avg(st_x(st_centroid(sr.geometry))) as longitude,
+        avg(st_y(st_centroid(sr.geometry))) as latitude
+    from station_row sr
+    group by sr.station_group_code
 ),
 
 -- 町丁目の代表点から直線距離 10 km 以内で一番近い駅。先に経緯度の箱で候補を絞る。
 -- 箱は緯度 ±0.1 度 (約 11 km)・経度 ±0.15 度 (北緯 45.5 度でも約 11.7 km) で、10 km の円を含む
 nearest_station as (
-    select key_code, station_name, passenger_count, distance_m
-    from (
-        select
-            s.key_code,
-            st.station_name,
-            st.passenger_count,
-            st_distance_sphere(st_point(s.latitude, s.longitude), st_point(st.latitude, st.longitude)) as distance_m
-        from small_area s
-        join station st
-            on st.longitude between s.longitude - 0.15 and s.longitude + 0.15
-           and st.latitude between s.latitude - 0.1 and s.latitude + 0.1
-    )
+    select
+        s.key_code,
+        st.station_name,
+        c.passenger_count,
+        c.passenger_year,
+        st_distance_sphere(st_point(s.latitude, s.longitude), st_point(st.latitude, st.longitude)) as distance_m
+    from small_area s
+    join station st
+        on st.longitude between s.longitude - 0.15 and s.longitude + 0.15
+       and st.latitude between s.latitude - 0.1 and s.latitude + 0.1
+    left join station_group_count c on c.station_group_code = st.station_group_code
     where distance_m <= 10000
-    qualify row_number() over (partition by key_code order by distance_m, station_name) = 1
+    qualify row_number() over (partition by s.key_code order by distance_m, st.station_group_code) = 1
 ),
 
--- 地価は町丁目ごとに、値のある最新の年。地点の無くなった町に古い値が残らないよう、直近 3 年に限る
+-- 地価は住宅地・商業地それぞれ、町丁目ごとに値のある最新の年。地点の無くなった町に古い値が残らないよう、
+-- 直近 3 年に限る。住宅地と商業地で最新の年が違う町丁目があるので、年は別々に持つ
 land_price_row as (
     select key_code, year, residential_price_median, commercial_price_median
     from area_stats.land_price.small_area
-    where residential_price_median is not null or commercial_price_median is not null
+    where year >= (select max(year) - 2 from area_stats.land_price.small_area)
 ),
 
 land_price as (
-    select *
+    select
+        key_code,
+        max(year) filter (where residential_price_median is not null) as residential_price_year,
+        arg_max(residential_price_median, year) filter (where residential_price_median is not null) as residential_price_median,
+        max(year) filter (where commercial_price_median is not null) as commercial_price_year,
+        arg_max(commercial_price_median, year) filter (where commercial_price_median is not null) as commercial_price_median
     from land_price_row
-    where year >= (select max(year) - 2 from land_price_row)
-    qualify row_number() over (partition by key_code order by year desc) = 1
+    group by key_code
 )
 
 select
@@ -156,9 +184,10 @@ select
     ns.station_name as nearest_station_name,
     cast(round(ns.distance_m) as integer) as nearest_station_distance_m,
     ns.passenger_count as nearest_station_passenger_count,
-    (select year from station_year) as station_passenger_year,
-    lp.year as land_price_year,
+    ns.passenger_year as station_passenger_year,
+    lp.residential_price_year,
     lp.residential_price_median,
+    lp.commercial_price_year,
     lp.commercial_price_median
 from small_area s
 left join age a on a.key_code = s.key_code and not a.is_suppressed

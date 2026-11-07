@@ -4,7 +4,7 @@ title: 町丁目カルテ
 description: |-
   町丁目ごとのよく使う指標を 1 行に並べた表です。1 行が国勢調査の小地域（町丁目）1 つです。
 
-  - 人口と年齢は令和2年国勢調査、店舗は Overture Places の取り込み時点、乗降客数は station_passenger_year の年、地価は land_price_year の年の値です
+  - 人口と年齢は令和2年国勢調査、店舗は Overture Places の取り込み時点、乗降客数は station_passenger_year の年、地価は residential_price_year・commercial_price_year の年の値です
   - 店舗の件数は Overture に登録された数で、実際の店舗数より少ない地域があります
   - 細かい区分（5 歳階級など）は e_stat の国勢調査の表と key_code で結合してください
 sources:
@@ -16,14 +16,14 @@ fields:
   - name: key_code
     title: 小地域コード
     description: e_stat の境界・国勢調査のテーブルと同じ
-    extensions: { queria: { semantic: { role: entity, name: small_area } } }
+    annotations: { queria: { semantic: { role: entity, name: small_area } } }
   - name: prefecture_code
     title: 都道府県コード
-    extensions: { queria: { semantic: { role: entity, name: prefecture } } }
+    annotations: { queria: { semantic: { role: entity, name: prefecture } } }
   - name: city_code
     title: 市区町村コード
     description: 5 桁の標準地域コード。政令指定都市は区
-    extensions: { queria: { semantic: { role: entity, name: city } } }
+    annotations: { queria: { semantic: { role: entity, name: city } } }
   - name: city_name
     title: 市区町村名
   - name: area_name
@@ -78,15 +78,19 @@ fields:
     description: m。直線距離
   - name: nearest_station_passenger_count
     title: 最寄り駅の乗降客数
-    description: 人/日。乗り換え駅は路線をまとめた値。記載の無い駅は NULL
+    description: 人/日。路線ごとに値のある最新の年（直近 3 年まで）の値で、乗り換え駅は路線をまとめた値。記載の無い駅は NULL
   - name: station_passenger_year
     title: 乗降客数の年
-  - name: land_price_year
-    title: 地価の年
-    description: 値のある最新の年（直近 3 年まで）
+    description: 乗り換え駅で路線ごとに年が違うときは新しい方の年
+  - name: residential_price_year
+    title: 住宅地の地価の年
+    description: 住宅地の値のある最新の年（直近 3 年まで）
   - name: residential_price_median
     title: 住宅地の地価の中央値
     description: 円/㎡。area_stats.land_price.small_area と同じ（町ごとの値）
+  - name: commercial_price_year
+    title: 商業地の地価の年
+    description: 商業地の値のある最新の年（直近 3 年まで）
   - name: commercial_price_median
     title: 商業地の地価の中央値
     description: 円/㎡。area_stats.land_price.small_area と同じ（町ごとの値）
