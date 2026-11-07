@@ -1,0 +1,96 @@
+schema: profile
+name: small_area
+title: 町丁目カルテ
+description: |-
+  町丁目ごとのよく使う指標を 1 行に並べた表です。1 行が国勢調査の小地域（町丁目）1 つです。
+
+  - 人口と年齢は令和2年国勢調査、店舗は Overture Places の取り込み時点、乗降客数は station_passenger_year の年、地価は residential_price_year・commercial_price_year の年の値です
+  - 店舗の件数は Overture に登録された数で、実際の店舗数より少ない地域があります
+  - 細かい区分（5 歳階級など）は e_stat の国勢調査の表と key_code で結合してください
+sources:
+  - path: https://www.e-stat.go.jp/gis
+  - path: https://nlftp.mlit.go.jp/ksj/
+  - path: https://overturemaps.org/
+  - path: https://www.reinfolib.mlit.go.jp/
+fields:
+  - name: key_code
+    title: 小地域コード
+    description: e_stat の境界・国勢調査のテーブルと同じ
+    annotations: { queria: { semantic: { role: entity, name: small_area } } }
+  - name: prefecture_code
+    title: 都道府県コード
+    annotations: { queria: { semantic: { role: entity, name: prefecture } } }
+  - name: city_code
+    title: 市区町村コード
+    description: 5 桁の標準地域コード。政令指定都市は区
+    annotations: { queria: { semantic: { role: entity, name: city } } }
+  - name: city_name
+    title: 市区町村名
+  - name: area_name
+    title: 町丁目名
+  - name: area_km2
+    title: 面積
+    description: km²。境界の図形から求めた値で、公式の面積とは一致しない
+  - name: population
+    title: 人口
+    description: 令和2年国勢調査
+  - name: households
+    title: 世帯数
+    description: 令和2年国勢調査
+  - name: population_density
+    title: 人口密度
+    description: 人/km²
+  - name: population_under_15
+    title: 15 歳未満人口
+    description: 秘匿の町丁目は NULL（人数は合算先の町丁目に含まれる）
+  - name: population_15_64
+    title: 15〜64 歳人口
+  - name: population_65_over
+    title: 65 歳以上人口
+  - name: population_75_over
+    title: 75 歳以上人口
+  - name: aged_65_over_rate
+    title: 高齢化率
+    description: '%。65 歳以上人口 ÷ 年齢 3 区分の合計（年齢不詳を除く）'
+  - name: facility_count
+    title: 店舗・施設の数
+    description: Overture Places の登録のうち、閉店・重複・確からしさの低いものと、ATM など人のいない設備を除いた数
+  - name: food_count
+    title: 飲食店の数
+    description: 日本標準産業分類の中分類 76 飲食店・77 持ち帰り・配達飲食サービス業
+  - name: grocery_count
+    title: 食料品・日用品の店の数
+    description: 中分類 56 各種商品小売業・58 飲食料品小売業（スーパー・コンビニなど）
+  - name: shopping_count
+    title: そのほかの小売店の数
+    description: 中分類 57 織物・衣服・身の回り品・59 機械器具・60 その他の小売業（ドラッグストアなど）
+  - name: medical_count
+    title: 医療・福祉施設の数
+    description: 中分類 83 医療業・84 保健衛生・85 社会保険・社会福祉・介護事業
+  - name: education_count
+    title: 教育施設の数
+    description: 中分類 81 学校教育・82 その他の教育，学習支援業
+  - name: nearest_station_name
+    title: 最寄り駅
+    description: 町丁目の代表点から直線距離で一番近い駅。10 km 以内に駅が無ければ NULL
+  - name: nearest_station_distance_m
+    title: 最寄り駅までの距離
+    description: m。直線距離
+  - name: nearest_station_passenger_count
+    title: 最寄り駅の乗降客数
+    description: 人/日。路線ごとに値のある最新の年（直近 3 年まで）の値で、乗り換え駅は路線をまとめた値。記載の無い駅は NULL
+  - name: station_passenger_year
+    title: 乗降客数の年
+    description: 乗り換え駅で路線ごとに年が違うときは新しい方の年
+  - name: residential_price_year
+    title: 住宅地の地価の年
+    description: 住宅地の値のある最新の年（直近 3 年まで）
+  - name: residential_price_median
+    title: 住宅地の地価の中央値
+    description: 円/㎡。area_stats.land_price.small_area と同じ（町ごとの値）
+  - name: commercial_price_year
+    title: 商業地の地価の年
+    description: 商業地の値のある最新の年（直近 3 年まで）
+  - name: commercial_price_median
+    title: 商業地の地価の中央値
+    description: 円/㎡。area_stats.land_price.small_area と同じ（町ごとの値）

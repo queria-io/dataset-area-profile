@@ -1,0 +1,16 @@
+name: "area_profile"
+version: "1.0.0"
+
+profile: "area_profile"
+
+model-paths: ["models"]
+macro-paths: ["shared/macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  area_profile:
+    +database: area_profile
+    +materialized: table
