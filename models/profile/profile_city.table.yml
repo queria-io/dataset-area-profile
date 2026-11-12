@@ -1,0 +1,124 @@
+schema: profile
+name: city
+title: 市区町村カルテ
+description: |-
+  市区町村ごとのよく使う指標を 1 行に並べた表です。1 行が令和7年国勢調査の市区町村 1 つです。
+
+  - 市・町村に加えて、政令指定都市の区・東京都の特別区・特別区部（13100）の行があります。`area_level` が ward の行は親の市の内訳なので、市と一緒に合計すると二重に数えます
+  - 値ごとに時点が違います。人口と年齢は令和7年国勢調査、昼間人口は令和2年国勢調査、将来推計人口は社人研の令和5年推計、転入超過数・出生・死亡・財政力指数・医療施設はそれぞれの年の列の値、事業所は令和3年経済センサス‐活動調査、店舗は Overture Places の取り込み時点です
+  - 政令指定都市と特別区部の行が元の表に無い値（医療施設・出生・死亡・将来推計人口・店舗の数）は、区の値を足しています
+sources:
+  - path: https://www.e-stat.go.jp/
+  - path: https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp
+  - path: https://overturemaps.org/
+fields:
+  - name: city_code
+    title: 市区町村コード
+    description: 5 桁の標準地域コード。e_stat の市区町村の表の area と同じ
+    annotations: { queria: { semantic: { role: entity, name: city } } }
+  - name: lg_code
+    title: 全国地方公共団体コード
+    description: 検査数字付きの 6 桁。特別区部は NULL
+    annotations: { queria: { semantic: { role: entity, name: city } } }
+  - name: prefecture_code
+    title: 都道府県コード
+    annotations: { queria: { semantic: { role: entity, name: prefecture } } }
+  - name: city_name
+    title: 市区町村名
+    description: 政令指定都市の区は市名を含む（横浜市鶴見区）
+  - name: area_level
+    title: 区分
+    description: city（市・特別区部）、ward（政令指定都市の区・特別区）、town_village（町村）。日本全域を 1 回ずつ覆うのは city と town_village の組
+  - name: parent_city_code
+    title: 親の市の市区町村コード
+    description: ward の行だけ。政令指定都市、特別区は特別区部（13100）
+  - name: area_km2
+    title: 面積
+    description: km²。令和7年国勢調査
+  - name: population
+    title: 人口
+    description: 令和7年国勢調査
+  - name: households
+    title: 世帯数
+    description: 令和7年国勢調査
+  - name: population_density
+    title: 人口密度
+    description: 人/km²。令和7年国勢調査
+  - name: population_2020
+    title: 2020 年の人口
+    description: 令和2年国勢調査。令和7年国勢調査の表に載っている値
+  - name: population_change_rate_5y
+    title: 5 年間の人口増減率
+    description: '%。2020 年から 2025 年'
+  - name: population_under_15
+    title: 15 歳未満人口
+    description: 令和7年国勢調査
+  - name: population_15_64
+    title: 15〜64 歳人口
+  - name: population_65_over
+    title: 65 歳以上人口
+  - name: population_75_over
+    title: 75 歳以上人口
+  - name: aged_65_over_rate
+    title: 高齢化率
+    description: '%。65 歳以上人口 ÷ 年齢 3 区分の合計（年齢不詳を除く）'
+  - name: daytime_population
+    title: 昼間人口
+    description: 令和2年国勢調査の従業地・通学地による人口
+  - name: daytime_population_ratio
+    title: 昼夜間人口比率
+    description: '%。昼間人口 ÷ 常住地による人口（いずれも令和2年）'
+  - name: projected_population_2050
+    title: 2050 年の将来推計人口
+    description: 社人研「日本の地域別将来推計人口（令和5年推計）」。福島県の浜通り 13 市町村は個別の推計が無いので NULL
+  - name: projected_change_rate_2050
+    title: 2050 年までの人口増減率
+    description: '%。同じ推計の 2020 年（国勢調査の実績値）から 2050 年'
+  - name: net_migration
+    title: 転入超過数
+    description: 人。住民基本台帳人口移動報告の日本人と外国人の合計。負なら転出超過
+  - name: net_migration_year
+    title: 転入超過数の年
+  - name: births
+    title: 出生数
+    description: 人口動態統計
+  - name: deaths
+    title: 死亡数
+    description: 人口動態統計
+  - name: vital_statistics_year
+    title: 出生数・死亡数の年
+  - name: fiscal_capacity_index
+    title: 財政力指数
+    description: 地方財政状況調査の 3 か年平均。政令指定都市の区と特別区部は NULL
+  - name: fiscal_year
+    title: 財政力指数の年度
+  - name: establishments
+    title: 事業所数
+    description: 令和3年経済センサス‐活動調査の民営事業所数（全産業、公務を除く）
+  - name: employees
+    title: 従業者数
+    description: 令和3年経済センサス‐活動調査
+  - name: hospitals
+    title: 病院数
+    description: 医療施設調査
+  - name: hospital_beds
+    title: 病院の病床数
+  - name: general_clinics
+    title: 一般診療所数
+  - name: dental_clinics
+    title: 歯科診療所数
+  - name: medical_facility_year
+    title: 医療施設の年
+  - name: facility_count
+    title: 店舗・施設の数
+    description: profile.small_area の町丁目の値の合計。Overture Places の登録の数で、実際の店舗数より少ない地域がある
+  - name: food_count
+    title: 飲食店の数
+  - name: grocery_count
+    title: 食料品・日用品の店の数
+  - name: shopping_count
+    title: そのほかの小売店の数
+  - name: medical_count
+    title: 医療・福祉施設の数
+  - name: education_count
+    title: 教育施設の数
