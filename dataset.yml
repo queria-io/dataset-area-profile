@@ -6,11 +6,14 @@ title: 地域カルテ
 description: |-
   町丁目と市区町村ごとのよく使う指標（人口・年齢構成・昼間人口・将来推計人口・財政力指数・事業所・医療施設・店舗数・最寄り駅・地価）を、1 行に並べたデータセットです。地域どうしを比べたり、地図で塗ったりするときに 1 つの表で引けます。
 
-  出典：「国勢調査」（総務省統計局、令和2年）、「国土数値情報 駅別乗降客数データ」（国土交通省）、Overture Maps Foundation の Places、「不動産情報ライブラリ」（国土交通省）、「アドレス・ベース・レジストリ」（デジタル庁）。Queria が加工したものです。
+  出典：「国勢調査」（総務省統計局、令和2年・令和7年）、「住民基本台帳人口移動報告」（総務省統計局）、「人口動態統計」「医療施設調査」（厚生労働省）、「地方財政状況調査」（総務省）、「経済センサス‐活動調査」（総務省・経済産業省、令和3年）、「日本の地域別将来推計人口（令和5年推計）」（国立社会保障・人口問題研究所）、「国土数値情報 駅別乗降客数データ」（国土交通省）、Overture Maps Foundation の Places、「不動産情報ライブラリ」（国土交通省）、「アドレス・ベース・レジストリ」（デジタル庁）。Queria が加工したものです。
 keywords:
   - 地域
   - 町丁目
   - 小地域
+  - 市区町村
+  - 将来推計人口
+  - 財政力指数
   - 人口
   - 高齢化率
   - 店舗
@@ -25,10 +28,15 @@ licenses:
   - Apache-2.0
   - CC0-1.0
   - JP-DIGITAL-ADDRESS-BR
+  - JP-PDL-1.0
 
 sources:
   - title: 国勢調査 小地域集計・町丁・字等別境界データ（総務省統計局）
     path: https://www.e-stat.go.jp/gis
+  - title: 国勢調査・住民基本台帳人口移動報告・人口動態統計・地方財政状況調査・経済センサス‐活動調査・医療施設調査（政府統計の総合窓口 e-Stat）
+    path: https://www.e-stat.go.jp/
+  - title: 日本の地域別将来推計人口（令和5年推計）（国立社会保障・人口問題研究所）
+    path: https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp
   - title: 国土数値情報 駅別乗降客数データ（国土交通省）
     path: https://nlftp.mlit.go.jp/ksj/
   - title: Overture Maps Foundation Places
@@ -41,6 +49,18 @@ sources:
 contributors:
   - title: 総務省統計局
     path: https://www.stat.go.jp/
+    roles: [rightsHolder]
+  - title: 総務省
+    path: https://www.soumu.go.jp/
+    roles: [rightsHolder]
+  - title: 厚生労働省
+    path: https://www.mhlw.go.jp/
+    roles: [rightsHolder]
+  - title: 経済産業省
+    path: https://www.meti.go.jp/
+    roles: [rightsHolder]
+  - title: 国立社会保障・人口問題研究所
+    path: https://www.ipss.go.jp/
     roles: [rightsHolder]
   - title: 国土交通省
     path: https://www.mlit.go.jp/
@@ -72,8 +92,13 @@ annotations:
         人口と年齢は令和2年国勢調査、店舗は取り込んだ Overture のリリース時点、乗降客数は station_passenger_year
         の年、地価は residential_price_year・commercial_price_year の年の値で、時点がそろっていない。店舗の件数は Overture の登録の数で、
         実際の店舗数より少ない地域がある。地価の値は area_stats.land_price.small_area と同じ（町ごとの中央値）。
+        市区町村どうしを比べるときは profile.city を引く。1 行が令和7年国勢調査の市区町村 1 つで、city_code（5 桁）と
+        lg_code（6 桁）で地域のデータセットと結合できる。人口・年齢 4 区分・昼間人口・2050 年の将来推計人口・転入超過数・
+        出生数と死亡数・財政力指数・事業所数・医療施設・店舗の種類別件数が列に並び、時点は値ごとに *_year の列にある。
+        area_level が ward の行は親の市の内訳なので、合計するときは city と town_village の行だけを足す。
       synonyms: [地域カルテ, 町丁目カルテ, エリアプロファイル, 町丁目 指標, 地域の概要]
       examples:
         - 駅の周りの町丁目の人口と高齢化率と飲食店の数を並べたい
         - 2 つの町丁目の様子を比べたい
         - 町丁目ごとの高齢化率を地図で塗りたい
+        - 県内の市町村を 2050 年までの人口増減率と財政力指数で比べたい

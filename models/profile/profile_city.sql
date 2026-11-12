@@ -64,13 +64,7 @@ future_row as (
 ),
 
 future as (
-    select * from future_row
-    union all
-    select w.parent_code, sum(f.population_2020), sum(f.population_2050)
-    from future_row f
-    join ward w using (city_code)
-    where w.parent_code not in (select city_code from future_row)
-    group by w.parent_code
+    {{ with_ward_sums('future_row', 'ward', ['population_2020', 'population_2050']) }}
 ),
 
 -- 転入超過数は日本人と外国人の合計 (60000)。最新の年
@@ -92,13 +86,7 @@ vital_row as (
 ),
 
 vital as (
-    select * from vital_row
-    union all
-    select w.parent_code, max(v.year), sum(v.births), sum(v.deaths)
-    from vital_row v
-    join ward w using (city_code)
-    where w.parent_code not in (select city_code from vital_row)
-    group by w.parent_code
+    {{ with_ward_sums('vital_row', 'ward', ['births', 'deaths'], maxes=['year']) }}
 ),
 
 -- 財政力指数は市区町村 (特別区を含む) だけ。政令指定都市の区には無い。最新の年度
@@ -126,14 +114,7 @@ medical_row as (
 ),
 
 medical as (
-    select * from medical_row
-    union all
-    select w.parent_code, max(m.survey_year), sum(m.hospitals), sum(m.hospital_beds),
-           sum(m.general_clinics), sum(m.dental_clinics)
-    from medical_row m
-    join ward w using (city_code)
-    where w.parent_code not in (select city_code from medical_row)
-    group by w.parent_code
+    {{ with_ward_sums('medical_row', 'ward', ['hospitals', 'hospital_beds', 'general_clinics', 'dental_clinics'], maxes=['survey_year']) }}
 ),
 
 -- 店舗の数は町丁目の表を足す。町丁目の city_code は政令指定都市では区なので、親の市は区を足す
@@ -150,15 +131,16 @@ facility_row as (
     group by city_code
 ),
 
+-- 町丁目の表は令和2年の境界なので、区から親の市への対応も令和2年国勢調査のものを使う
+-- (浜松市は 2024 年に区を 7 つから 3 つに再編したので、令和7年の区のコードでは町丁目を引けない)
+ward_2020 as (
+    select distinct area as city_code, parent_area as parent_code
+    from e_stat.census.census_municipality_daytime_population
+    where area_level = 'ward'
+),
+
 facility as (
-    select * from facility_row
-    union all
-    select w.parent_code, sum(f.facility_count), sum(f.food_count), sum(f.grocery_count),
-           sum(f.shopping_count), sum(f.medical_count), sum(f.education_count)
-    from facility_row f
-    join ward w using (city_code)
-    where w.parent_code not in (select city_code from facility_row)
-    group by w.parent_code
+    {{ with_ward_sums('facility_row', 'ward_2020', ['facility_count', 'food_count', 'grocery_count', 'shopping_count', 'medical_count', 'education_count']) }}
 )
 
 select
@@ -199,12 +181,12 @@ select
     cast(md.general_clinics as bigint) as general_clinics,
     cast(md.dental_clinics as bigint) as dental_clinics,
     md.survey_year as medical_facility_year,
-    cast(coalesce(fa.facility_count, 0) as bigint) as facility_count,
-    cast(coalesce(fa.food_count, 0) as bigint) as food_count,
-    cast(coalesce(fa.grocery_count, 0) as bigint) as grocery_count,
-    cast(coalesce(fa.shopping_count, 0) as bigint) as shopping_count,
-    cast(coalesce(fa.medical_count, 0) as bigint) as medical_count,
-    cast(coalesce(fa.education_count, 0) as bigint) as education_count
+    cast(fa.facility_count as bigint) as facility_count,
+    cast(fa.food_count as bigint) as food_count,
+    cast(fa.grocery_count as bigint) as grocery_count,
+    cast(fa.shopping_count as bigint) as shopping_count,
+    cast(fa.medical_count as bigint) as medical_count,
+    cast(fa.education_count as bigint) as education_count
 from city c
 left join age a on a.city_code = c.city_code
 left join daytime d on d.city_code = c.city_code

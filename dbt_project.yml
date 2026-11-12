@@ -4,7 +4,7 @@ version: "1.0.0"
 profile: "area_profile"
 
 model-paths: ["models"]
-macro-paths: ["shared/macros"]
+macro-paths: ["macros", "shared/macros"]
 
 clean-targets:
   - "target"

@@ -7,6 +7,7 @@ description: |-
   - 市・町村に加えて、政令指定都市の区・東京都の特別区・特別区部（13100）の行があります。`area_level` が ward の行は親の市の内訳なので、市と一緒に合計すると二重に数えます
   - 値ごとに時点が違います。人口と年齢は令和7年国勢調査、昼間人口は令和2年国勢調査、将来推計人口は社人研の令和5年推計、転入超過数・出生・死亡・財政力指数・医療施設はそれぞれの年の列の値、事業所は令和3年経済センサス‐活動調査、店舗は Overture Places の取り込み時点です
   - 政令指定都市と特別区部の行が元の表に無い値（医療施設・出生・死亡・将来推計人口・店舗の数）は、区の値を足しています
+  - 2024 年に再編した浜松市の 3 区は、令和7年国勢調査より前の統計（昼間人口・将来推計人口・事業所・店舗の数）が NULL です。市の行には値があります
 sources:
   - path: https://www.e-stat.go.jp/
   - path: https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp
@@ -111,7 +112,7 @@ fields:
     title: 医療施設の年
   - name: facility_count
     title: 店舗・施設の数
-    description: profile.small_area の町丁目の値の合計。Overture Places の登録の数で、実際の店舗数より少ない地域がある
+    description: profile.small_area の町丁目の値の合計。Overture Places の登録の数で、実際の店舗数より少ない地域がある。町丁目の表（令和2年の境界）に無い区は NULL
   - name: food_count
     title: 飲食店の数
   - name: grocery_count
