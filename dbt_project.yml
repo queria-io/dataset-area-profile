@@ -14,7 +14,7 @@ models:
   area_profile:
     +database: area_profile
     +materialized: table
-    # Parquet を直接読む利用者 (api.queria.io/v1/areas) は DuckLake のカタログを読まず、ここで書いた Parquet を
+    # 地域コードから 1 行を引く API は DuckLake のカタログを読まず、ここで書いた Parquet を
     # Range で直接読む。1 件の問い合わせでフッター 1 回と行グループ 1 つだけを読めるよう、行グループを
     # 小さくし (DuckDB が書ける最小の 2,048 行)、町丁目の表は都道府県ごとのファイルに分ける。
     # 行グループの大きさはスキーマに付ける (dbt は __dbt_tmp に書いてから改名するので、テーブルに付けても効かない)。
