@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: profile_city
+    description: 市区町村ごとのよく使う指標を 1 行に並べた表。人口・年齢構成・昼間人口・将来推計人口・人口動態・財政力指数・事業所・医療施設・店舗の種類別件数。
+    columns:
+      - name: city_code
+        data_tests: [unique, not_null]
+      - name: lg_code
+      - name: prefecture_code
+        data_tests: [not_null]
+      - name: city_name
+        data_tests: [not_null]
+      - name: area_level
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [city, ward, town_village]

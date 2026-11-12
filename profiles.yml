@@ -50,3 +50,7 @@ area_profile:
           alias: area_stats
           is_ducklake: true
           read_only: true
+        - path: "ducklake:https://data.queria.io/datasets/queria/ipss/ducklake.duckdb"
+          alias: ipss
+          is_ducklake: true
+          read_only: true
