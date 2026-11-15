@@ -18,7 +18,7 @@ with small_area as materialized (
         jinko,
         setai,
         geometry
-    from e_stat.boundary.small_area
+    from {{ ref('stg_e_stat_small_area') }}
     where length(key_code) in (9, 11)
 ),
 
@@ -32,7 +32,7 @@ age as (
         sum(value) filter (where cat01 = '0180') as age_15_64,
         sum(value) filter (where cat01 = '0190') as age_65_over,
         sum(value) filter (where cat01 = '0200') as age_75_over
-    from e_stat.census.census_small_area_age
+    from {{ ref('stg_e_stat_census_small_area_age') }}
     where length(area) in (9, 11)
       and cat01 in ('0170', '0180', '0190', '0200')
     group by area
@@ -47,10 +47,10 @@ place as (
         p.longitude,
         p.latitude,
         if(t.basic_category is null, d.industry_code, t.industry_code) as industry_code
-    from overturemaps.places.place p
-    left join overturemaps.places.category t
+    from {{ ref('stg_overturemaps_place') }} p
+    left join {{ ref('stg_overturemaps_category') }} t
         on t.basic_category = p.basic_category and t.taxonomy_primary = p.taxonomy_primary
-    left join overturemaps.places.category d
+    left join {{ ref('stg_overturemaps_category') }} d
         on d.basic_category = p.basic_category and d.taxonomy_primary is null
     where p.exclude_reason is null
       and if(t.basic_category is null, d.is_unattended, t.is_unattended) is not true
@@ -81,13 +81,13 @@ facility as (
 -- この行には station_group_code の無いものがあり、まとめると全国の座標を平均した架空の駅ができる
 station_year as (
     select max(year) as year
-    from nlftp.railway.station_passenger
+    from {{ ref('stg_nlftp_station_passenger') }}
     where passenger_count is not null
 ),
 
 station_row as (
     select sp.*
-    from nlftp.railway.station_passenger sp
+    from {{ ref('stg_nlftp_station_passenger') }} sp
     join station_year y using (year)
     where sp.duplicate_code <> '3'
       and sp.station_group_code is not null
@@ -98,7 +98,7 @@ station_row as (
 -- 他の路線の駅に記載された行 (duplicate_code = 2) は二重に数えないよう除く
 station_count as (
     select sp.station_group_code, sp.year, sp.passenger_count
-    from nlftp.railway.station_passenger sp
+    from {{ ref('stg_nlftp_station_passenger') }} sp
     where sp.passenger_count is not null
       and sp.duplicate_code = '1'
       and sp.year >= (select year - 2 from station_year)
@@ -144,8 +144,8 @@ nearest_station as (
 -- 直近 3 年に限る。住宅地と商業地で最新の年が違う町丁目があるので、年は別々に持つ
 land_price_row as (
     select key_code, year, residential_price_median, commercial_price_median
-    from area_stats.land_price.small_area
-    where year >= (select max(year) - 2 from area_stats.land_price.small_area)
+    from {{ ref('stg_area_stats_land_price_small_area') }}
+    where year >= (select max(year) - 2 from {{ ref('stg_area_stats_land_price_small_area') }})
 ),
 
 land_price as (
