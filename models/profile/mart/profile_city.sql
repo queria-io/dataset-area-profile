@@ -17,7 +17,7 @@ with city as (
         population_change_rate_5y,
         area_km2,
         population_density
-    from e_stat.census.census_municipality_2025
+    from {{ ref('stg_e_stat_census_municipality_2025') }}
     where area_level in ('city', 'ward', 'town_village')
 ),
 
@@ -35,7 +35,7 @@ age as (
         sum(population) filter (where age_from >= 15 and age_to <= 64) as age_15_64,
         sum(population) filter (where age_from >= 65) as age_65_over,
         sum(population) filter (where age_from >= 75) as age_75_over
-    from e_stat.census.census_municipality_age_2025
+    from {{ ref('stg_e_stat_census_municipality_age_2025') }}
     where area_level in ('city', 'ward', 'town_village')
     group by area
 ),
@@ -46,7 +46,7 @@ daytime as (
         area as city_code,
         max(value) filter (where location_code = '1') as daytime_population,
         max(value) filter (where location_code = '0') as nighttime_population
-    from e_stat.census.census_municipality_daytime_population
+    from {{ ref('stg_e_stat_census_municipality_daytime_population') }}
     where sex_code = '0' and location_code in ('0', '1')
     group by area
 ),
@@ -58,7 +58,7 @@ future_row as (
         city_code,
         sum(population) filter (where year = 2020) as population_2020,
         sum(population) filter (where year = 2050) as population_2050
-    from ipss.regional_projection.population
+    from {{ ref('stg_ipss_population') }}
     where area_level <> 'prefecture'
     group by city_code
 ),
@@ -70,19 +70,19 @@ future as (
 -- 転入超過数は日本人と外国人の合計 (60000)。最新の年
 migration as (
     select area as city_code, year, net_inflow
-    from e_stat.migration.municipality_migration
+    from {{ ref('stg_e_stat_municipality_migration') }}
     where sex_code = '0'
       and nationality_code = '60000'
       and area_level in ('municipality', 'ward')
-      and year = (select max(year) from e_stat.migration.municipality_migration)
+      and year = (select max(year) from {{ ref('stg_e_stat_municipality_migration') }})
 ),
 
 -- 人口動態は最新の年。特別区部の行は無いので区を足す
 vital_row as (
     select area_code as city_code, year, births, deaths
-    from e_stat.vital_statistics.vital_events
+    from {{ ref('stg_e_stat_vital_events') }}
     where area_kind in ('municipality', 'designated_city', 'ward')
-      and year = (select max(year) from e_stat.vital_statistics.vital_events)
+      and year = (select max(year) from {{ ref('stg_e_stat_vital_events') }})
 ),
 
 vital as (
@@ -92,14 +92,14 @@ vital as (
 -- 財政力指数は市区町村 (特別区を含む) だけ。政令指定都市の区には無い。最新の年度
 fiscal as (
     select area_code as city_code, fiscal_year, fiscal_capacity_index
-    from e_stat.local_finance.fiscal_capacity
+    from {{ ref('stg_e_stat_fiscal_capacity') }}
     qualify row_number() over (partition by area_code order by fiscal_year desc) = 1
 ),
 
 -- 令和3年経済センサス‐活動調査の全産業 (公務を除く)・経営組織の総数
 establishment as (
     select area as city_code, establishments, employees
-    from e_stat.economic_census.establishment_industry
+    from {{ ref('stg_e_stat_establishment_industry') }}
     where industry_code = 'AR'
       and organization_code = '0'
       and area_level in ('municipality', 'ward')
@@ -108,9 +108,9 @@ establishment as (
 -- 医療施設調査の最新の年。政令指定都市は区の行だけなので区を足す
 medical_row as (
     select area_code as city_code, survey_year, hospitals, hospital_beds, general_clinics, dental_clinics
-    from e_stat.medical_facility.municipality_facility
+    from {{ ref('stg_e_stat_municipality_facility') }}
     where area_level = 'municipality'
-      and survey_year = (select max(survey_year) from e_stat.medical_facility.municipality_facility)
+      and survey_year = (select max(survey_year) from {{ ref('stg_e_stat_municipality_facility') }})
 ),
 
 medical as (
@@ -135,7 +135,7 @@ facility_row as (
 -- (浜松市は 2024 年に区を 7 つから 3 つに再編したので、令和7年の区のコードでは町丁目を引けない)
 ward_2020 as (
     select distinct area as city_code, parent_area as parent_code
-    from e_stat.census.census_municipality_daytime_population
+    from {{ ref('stg_e_stat_census_municipality_daytime_population') }}
     where area_level = 'ward'
 ),
 
