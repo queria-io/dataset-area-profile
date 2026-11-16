@@ -20,6 +20,10 @@ models:
     # 行グループの大きさはスキーマに付ける (dbt は __dbt_tmp に書いてから改名するので、テーブルに付けても効かない)。
     # 表はまるごと作り直す (incremental にすると削除ファイルができ、Parquet だけを読む API が消した行を返す)
     profile:
+      # 他のデータセットの表を読む stg。ビューにすると利用者の手元に無いカタログを指し、
+      # テーブルにすると同じ行を 2 重に持つので、ephemeral にする
+      stg:
+        +materialized: ephemeral
       +pre-hook:
         - "CREATE SCHEMA IF NOT EXISTS area_profile.profile"
         - "CALL area_profile.set_option('parquet_row_group_size', 2048, schema => 'profile')"
