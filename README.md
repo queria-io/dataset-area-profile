@@ -75,12 +75,3 @@ ORDER BY projected_change_rate_2050;
 ## ファイルの分け方
 
 DuckLake のカタログを読まずに Parquet を直接読んでキーで 1 行を引けるよう、表は毎回まるごと作り直し、行グループを 2,048 行にしています。町丁目の表は都道府県コード（`prefecture_code`）ごとのファイルに分けています。
-
-## ビルド
-
-```bash
-uv sync
-scripts/build.sh   # dbt で作って fdl commit
-```
-
-GitHub Actions の Sync が毎月 4 日（area_stats の翌日）に作り直します。
