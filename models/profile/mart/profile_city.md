@@ -1,5 +1,6 @@
-schema: profile
-name: city
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: profile.city
 title: 市区町村カルテ
 description: |-
   市区町村ごとのよく使う指標を 1 行に並べた表です。1 行が令和7年国勢調査の市区町村 1 つです。
@@ -16,14 +17,14 @@ fields:
   - name: city_code
     title: 市区町村コード
     description: 5 桁の標準地域コード。e_stat の市区町村の表の area と同じ
-    annotations: { queria: { semantic: { role: entity, name: city } } }
+    semantic: {role: entity, name: city}
   - name: lg_code
     title: 全国地方公共団体コード
     description: 検査数字付きの 6 桁。特別区部は NULL
-    annotations: { queria: { semantic: { role: entity, name: city } } }
+    semantic: {role: entity, name: city}
   - name: prefecture_code
     title: 都道府県コード
-    annotations: { queria: { semantic: { role: entity, name: prefecture } } }
+    semantic: {role: entity, name: prefecture}
   - name: city_name
     title: 市区町村名
     description: 政令指定都市の区は市名を含む（横浜市鶴見区）
@@ -123,3 +124,4 @@ fields:
     title: 医療・福祉施設の数
   - name: education_count
     title: 教育施設の数
+---

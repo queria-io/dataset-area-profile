@@ -1,6 +1,4 @@
-# この dataset.yml は fdl commit が読む（FDL の dataset.json を YAML で書いたもの）。
-# 表の説明は models/ の *.table.yml に書く。表と列の型・NULL・行数は fdl commit がカタログから埋める。
-# Queria だけの項目（テーマ・カバー・列の意味）は annotations.queria に書く。
+$schema: https://queria.io/schemas/dataset/v1.json
 name: area_profile
 title: 地域カルテ
 description: |-
@@ -21,7 +19,6 @@ keywords:
   - 地価
 homepage: https://github.com/queria-io/dataset-area-profile
 language: ja
-
 licenses:
   - JP-GOV-STD-2.0
   - CDLA-Permissive-2.0
@@ -74,31 +71,28 @@ contributors:
 
 spatial_coverage: [JP]
 update_frequency: monthly
-
 schemas:
   - name: profile
     title: 地域カルテ
 
-annotations:
-  queria:
-    themes: [population]
-    cover: 🗂️
-    ai_context:
-      instructions: |
-        町丁目の様子をまとめて知りたいとき、町丁目どうしを比べるとき、地図で塗るときに最初に引く表。
-        profile.small_area は 1 行が国勢調査の小地域（町丁目）1 つで、人口・世帯・年齢 4 区分・高齢化率・
-        店舗の種類別件数・最寄り駅と乗降客数・最新の地価が列に並ぶ。key_code は e_stat の boundary.small_area
-        と国勢調査の小地域集計の area と同じなので、細かい区分（5 歳階級など）が要るときはそちらと結合する。
-        人口と年齢は令和2年国勢調査、店舗は取り込んだ Overture のリリース時点、乗降客数は station_passenger_year
-        の年、地価は residential_price_year・commercial_price_year の年の値で、時点がそろっていない。店舗の件数は Overture の登録の数で、
-        実際の店舗数より少ない地域がある。地価の値は area_stats.land_price.small_area と同じ（町ごとの中央値）。
-        市区町村どうしを比べるときは profile.city を引く。1 行が令和7年国勢調査の市区町村 1 つで、city_code（5 桁）と
-        lg_code（6 桁）で地域のデータセットと結合できる。人口・年齢 4 区分・昼間人口・2050 年の将来推計人口・転入超過数・
-        出生数と死亡数・財政力指数・事業所数・医療施設・店舗の種類別件数が列に並び、時点は値ごとに *_year の列にある。
-        area_level が ward の行は親の市の内訳なので、合計するときは city と town_village の行だけを足す。
-      synonyms: [地域カルテ, 町丁目カルテ, エリアプロファイル, 町丁目 指標, 地域の概要]
-      examples:
-        - 駅の周りの町丁目の人口と高齢化率と飲食店の数を並べたい
-        - 2 つの町丁目の様子を比べたい
-        - 町丁目ごとの高齢化率を地図で塗りたい
-        - 県内の市町村を 2050 年までの人口増減率と財政力指数で比べたい
+themes: [population]
+cover: 🗂️
+ai_context:
+  instructions: |
+    町丁目の様子をまとめて知りたいとき、町丁目どうしを比べるとき、地図で塗るときに最初に引く表。
+    profile.small_area は 1 行が国勢調査の小地域（町丁目）1 つで、人口・世帯・年齢 4 区分・高齢化率・
+    店舗の種類別件数・最寄り駅と乗降客数・最新の地価が列に並ぶ。key_code は e_stat の boundary.small_area
+    と国勢調査の小地域集計の area と同じなので、細かい区分（5 歳階級など）が要るときはそちらと結合する。
+    人口と年齢は令和2年国勢調査、店舗は取り込んだ Overture のリリース時点、乗降客数は station_passenger_year
+    の年、地価は residential_price_year・commercial_price_year の年の値で、時点がそろっていない。店舗の件数は Overture の登録の数で、
+    実際の店舗数より少ない地域がある。地価の値は area_stats.land_price.small_area と同じ（町ごとの中央値）。
+    市区町村どうしを比べるときは profile.city を引く。1 行が令和7年国勢調査の市区町村 1 つで、city_code（5 桁）と
+    lg_code（6 桁）で地域のデータセットと結合できる。人口・年齢 4 区分・昼間人口・2050 年の将来推計人口・転入超過数・
+    出生数と死亡数・財政力指数・事業所数・医療施設・店舗の種類別件数が列に並び、時点は値ごとに *_year の列にある。
+    area_level が ward の行は親の市の内訳なので、合計するときは city と town_village の行だけを足す。
+  synonyms: [地域カルテ, 町丁目カルテ, エリアプロファイル, 町丁目 指標, 地域の概要]
+  examples:
+    - 駅の周りの町丁目の人口と高齢化率と飲食店の数を並べたい
+    - 2 つの町丁目の様子を比べたい
+    - 町丁目ごとの高齢化率を地図で塗りたい
+    - 県内の市町村を 2050 年までの人口増減率と財政力指数で比べたい
