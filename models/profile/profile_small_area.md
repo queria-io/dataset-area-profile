@@ -1,5 +1,6 @@
-schema: profile
-name: small_area
+---
+$schema: https://queria.io/schemas/table/v1.json
+table: profile.small_area
 title: 町丁目カルテ
 description: |-
   町丁目ごとのよく使う指標を 1 行に並べた表です。1 行が国勢調査の小地域（町丁目）1 つです。
@@ -16,14 +17,14 @@ fields:
   - name: key_code
     title: 小地域コード
     description: e_stat の境界・国勢調査のテーブルと同じ
-    annotations: { queria: { semantic: { role: entity, name: small_area } } }
+    semantic: {role: entity, name: small_area}
   - name: prefecture_code
     title: 都道府県コード
-    annotations: { queria: { semantic: { role: entity, name: prefecture } } }
+    semantic: {role: entity, name: prefecture}
   - name: city_code
     title: 市区町村コード
     description: 5 桁の標準地域コード。政令指定都市は区
-    annotations: { queria: { semantic: { role: entity, name: city } } }
+    semantic: {role: entity, name: city}
   - name: city_name
     title: 市区町村名
   - name: area_name
@@ -94,3 +95,4 @@ fields:
   - name: commercial_price_median
     title: 商業地の地価の中央値
     description: 円/㎡。area_stats.land_price.small_area と同じ（町ごとの値）
+---
