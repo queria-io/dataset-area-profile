@@ -20,7 +20,7 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
-    uses: queria-io/dataset-shared/.github/workflows/sync.yml@252f25b5f027b83c61e265125e7557259135e8e7
+    uses: queria-io/dataset-shared/.github/workflows/sync.yml@03f0facbec0d7795c3b95cbcacedc1d26e500591
     with:
       dataset_name: area_profile
     secrets:
