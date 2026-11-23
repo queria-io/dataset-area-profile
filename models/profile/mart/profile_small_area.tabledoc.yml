@@ -11,14 +11,14 @@ columns:
   - name: key_code
     title: 小地域コード
     description: e_stat の境界・国勢調査のテーブルと同じ
-    entity: {type: foreign, name: small_area}
+    entity: small_area
   - name: prefecture_code
     title: 都道府県コード
-    entity: {type: foreign, name: prefecture}
+    entity: prefecture
   - name: city_code
     title: 市区町村コード
     description: 5 桁の標準地域コード。政令指定都市は区
-    entity: {type: foreign, name: city}
+    entity: city
   - name: city_name
     title: 市区町村名
   - name: area_name
