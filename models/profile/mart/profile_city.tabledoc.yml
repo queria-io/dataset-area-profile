@@ -12,14 +12,14 @@ columns:
   - name: city_code
     title: 市区町村コード
     description: 5 桁の標準地域コード。e_stat の市区町村の表の area と同じ
-    entity: {type: foreign, name: city}
+    entity: city
   - name: lg_code
     title: 全国地方公共団体コード
     description: 検査数字付きの 6 桁。特別区部は NULL
-    entity: {type: foreign, name: city}
+    entity: city
   - name: prefecture_code
     title: 都道府県コード
-    entity: {type: foreign, name: prefecture}
+    entity: prefecture
   - name: city_name
     title: 市区町村名
     description: 政令指定都市の区は市名を含む（横浜市鶴見区）

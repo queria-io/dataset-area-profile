@@ -31,58 +31,58 @@ licenses:
 sources:
   - id: gis
     title: 国勢調査 小地域集計・町丁・字等別境界データ（総務省統計局）
-    path: https://www.e-stat.go.jp/gis
+    url: https://www.e-stat.go.jp/gis
   - id: e-stat
     title: 国勢調査・住民基本台帳人口移動報告・人口動態統計・地方財政状況調査・経済センサス‐活動調査・医療施設調査（政府統計の総合窓口 e-Stat）
-    path: https://www.e-stat.go.jp/
+    url: https://www.e-stat.go.jp/
   - id: t-page
     title: 日本の地域別将来推計人口（令和5年推計）（国立社会保障・人口問題研究所）
-    path: https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp
+    url: https://www.ipss.go.jp/pp-shicyoson/j/shicyoson23/t-page.asp
   - id: ksj
     title: 国土数値情報 駅別乗降客数データ（国土交通省）
-    path: https://nlftp.mlit.go.jp/ksj/
+    url: https://nlftp.mlit.go.jp/ksj/
   - id: overturemaps
     title: Overture Maps Foundation Places
-    path: https://overturemaps.org/
+    url: https://overturemaps.org/
   - id: reinfolib
     title: 不動産情報ライブラリ（国土交通省）
-    path: https://www.reinfolib.mlit.go.jp/
+    url: https://www.reinfolib.mlit.go.jp/
   - id: dataset
     title: アドレス・ベース・レジストリ（デジタル庁）
-    path: https://dataset.address-br.digital.go.jp/
+    url: https://dataset.address-br.digital.go.jp/
 
 contributors:
   - id: stat
     title: 総務省統計局
-    path: https://www.stat.go.jp/
+    url: https://www.stat.go.jp/
     roles: [rightsHolder]
   - id: soumu
     title: 総務省
-    path: https://www.soumu.go.jp/
+    url: https://www.soumu.go.jp/
     roles: [rightsHolder]
   - id: mhlw
     title: 厚生労働省
-    path: https://www.mhlw.go.jp/
+    url: https://www.mhlw.go.jp/
     roles: [rightsHolder]
   - id: meti
     title: 経済産業省
-    path: https://www.meti.go.jp/
+    url: https://www.meti.go.jp/
     roles: [rightsHolder]
   - id: ipss
     title: 国立社会保障・人口問題研究所
-    path: https://www.ipss.go.jp/
+    url: https://www.ipss.go.jp/
     roles: [rightsHolder]
   - id: mlit
     title: 国土交通省
-    path: https://www.mlit.go.jp/
+    url: https://www.mlit.go.jp/
     roles: [rightsHolder]
   - id: overturemaps
     title: Overture Maps Foundation
-    path: https://overturemaps.org/
+    url: https://overturemaps.org/
     roles: [rightsHolder]
   - id: digital
     title: デジタル庁
-    path: https://www.digital.go.jp/
+    url: https://www.digital.go.jp/
     roles: [rightsHolder]
 
 spatial_coverage: [JP]
