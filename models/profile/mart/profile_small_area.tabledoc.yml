@@ -1,6 +1,4 @@
----
-$schema: https://queria.io/schemas/table/v1.json
-table: profile.small_area
+$schema: https://tabledoc.queria.io/schemas/table/v1.json
 title: 町丁目カルテ
 description: |-
   町丁目ごとのよく使う指標を 1 行に並べた表です。1 行が国勢調査の小地域（町丁目）1 つです。
@@ -8,23 +6,19 @@ description: |-
   - 人口と年齢は令和2年国勢調査、店舗は Overture Places の取り込み時点、乗降客数は station_passenger_year の年、地価は residential_price_year・commercial_price_year の年の値です
   - 店舗の件数は Overture に登録された数で、実際の店舗数より少ない地域があります
   - 細かい区分（5 歳階級など）は e_stat の国勢調査の表と key_code で結合してください
-sources:
-  - path: https://www.e-stat.go.jp/gis
-  - path: https://nlftp.mlit.go.jp/ksj/
-  - path: https://overturemaps.org/
-  - path: https://www.reinfolib.mlit.go.jp/
-fields:
+sources: [gis, ksj, overturemaps, reinfolib]
+columns:
   - name: key_code
     title: 小地域コード
     description: e_stat の境界・国勢調査のテーブルと同じ
-    semantic: {role: entity, name: small_area}
+    entity: {type: foreign, name: small_area}
   - name: prefecture_code
     title: 都道府県コード
-    semantic: {role: entity, name: prefecture}
+    entity: {type: foreign, name: prefecture}
   - name: city_code
     title: 市区町村コード
     description: 5 桁の標準地域コード。政令指定都市は区
-    semantic: {role: entity, name: city}
+    entity: {type: foreign, name: city}
   - name: city_name
     title: 市区町村名
   - name: area_name
@@ -95,4 +89,3 @@ fields:
   - name: commercial_price_median
     title: 商業地の地価の中央値
     description: 円/㎡。area_stats.land_price.small_area と同じ（町ごとの値）
----
