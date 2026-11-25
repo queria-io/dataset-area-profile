@@ -26,6 +26,7 @@ columns:
   - name: area_level
     title: 区分
     description: city（市・特別区部）、ward（政令指定都市の区・特別区）、town_village（町村）。日本全域を 1 回ずつ覆うのは city と town_village の組
+    dimension: categorical
   - name: parent_city_code
     title: 親の市の市区町村コード
     description: ward の行だけ。政令指定都市、特別区は特別区部（13100）
